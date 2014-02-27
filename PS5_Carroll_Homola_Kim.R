@@ -2,17 +2,23 @@
 ############### Thomas Carroll Jonathan Homola  Jeong Hyun Kim #####################
 
 # Set the working directory.
-setwd("~/Dropbox/2014 Spring/Programming/PS5")
+#setwd("~/Dropbox/2014 Spring/Programming/PS5")
+#setwd("C:/Users/Jona/Documents/Uni/WashU2/4625-Programming/PS5")
+
+
 # Clear the workspace: Remove the objects currently on my global.
 rm(list=ls())
 options(digits=5) # the number of significant digits I want listed
 options(stringsAsFactors=F) # This tells R not to turn things into factors as the default
 options(max.print=100) # This tells R the maximum number of things to print on my screen
 
-install.packages("pdist") # Install the package if you haven't.
+install.packages("pdist")     # Install the package if you haven't.
+install.packages("gridExtra") # Install the package if you haven't.
+
 # Load the libraries 
 lapply(c("foreign", "plyr", "ggplot2",  "gridExtra", "MASS", "pdist"), 
        library, character.only=TRUE)
+
 # foreign package is to import dataset of other formats (e.g., csv, dta)
 # plyr package allows us to use apply family in a more flexible way, and to make parallel.
 # ggplot2: For advanced plotting
@@ -26,12 +32,12 @@ lapply(c("foreign", "plyr", "ggplot2",  "gridExtra", "MASS", "pdist"),
 # n: number of voters
 # sig1, sig2: standard deviation of normal distributions. We set these values to a random number from uniform distribution [0,1] as default. 
 # mu1, mu2: mean of multivariate normal distribution. We set these values to a random number from standard normal distribution as default. 
-# Sigma, Sigma1-3: Variance-Covariance matrix for multivariate normal distribution.
+# Sigma, Sigma1-3: Variance-Covariance matrix for multivariate normal distribution. We provide some sample matrices as default that fulfill the positive definite criterion.
 # option: it can take values from 1 to 5. Each number gives different distribution that we will specify below. 
 
 # Before simulation, set the seed value for reproducible results:
 set.seed(123)
-voters <- function(n, sig1=runif(1), sig2=runif(1), mu1=rnorm(1), mu2=rnorm(1), Sigma=NULL, Sigma1=NULL, Sigma2=NULL, Sigma3=NULL,option){
+voters <- function(n, sig1=runif(1), sig2=runif(1), mu1=rnorm(2), mu2=rnorm(2), Sigma=matrix(c(10,3,3,2),2,2), Sigma1=matrix(c(10,3,3,2),2,2), Sigma2=matrix(c(5,4,4,7),2,2), Sigma3=matrix(c(23,8,8,3),2,2), option){
   # 2. Create voter preferences: Set the option to get different voter preferences matrix.
   # (1) If option==1, Preferences on each dimension are drawn from a standard normal distribution. 
   if (option==1){
@@ -54,11 +60,10 @@ voters <- function(n, sig1=runif(1), sig2=runif(1), mu1=rnorm(1), mu2=rnorm(1), 
   if (option==4){
     d1 <- mvrnorm(n, mu=mu1, Sigma=Sigma)
     d2 <- mvrnorm(n, mu=mu2, Sigma=Sigma)
-    voter.mat <- cbind(d1, d2)
+    voter.mat <- cbind(d1[,1], d2[,1])
   }
   # (5) If option==5, preferences are drawn from a mixure of three multivariate normal distributions.
   if (option==5){
-    Sigma <- matrix(c(10,3,3,2),2,2)
     mvr.1 <- mvrnorm(n*2, mu=runif(2), Sigma=Sigma1)
     mvr.2 <- mvrnorm(n*2, mu=runif(2), Sigma=Sigma2)
     mvr.3 <- mvrnorm(n*2, mu=runif(2), Sigma=Sigma3)
